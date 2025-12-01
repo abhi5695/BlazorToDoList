@@ -1,0 +1,64 @@
+﻿@page "/todo"
+
+@rendermode InteractiveServer
+
+@inject NavigationManager NavigationManager
+
+<h3>To Do</h3>
+<br />
+<div>
+    <button class="btn btn-primary" @onclick="AddToDo">Add Task</button>    
+</div>
+<br />
+<div>
+    <table>
+        <tbody>
+            @foreach (var todo in toDos)
+            {
+                <tr @key="todo.Id">
+                    <input type="text" @bind-value="todo.Id" hidden />
+                    <td>
+                        <input type="checkbox" class="form-check" checked="@todo.IsCompleted" @bind-value="todo.IsCompleted" @onclick="@(() => UpdateToDo(todo.Id, todo))" />
+                    </td>
+                    &nbsp;
+                    <td>
+                        @if (todo.IsCompleted)
+                        {
+                            <input type="text" class="form-control border-0 border-bottom text-decoration-line-through" @bind-value="todo.Title" disabled />
+                        }
+                        else
+                        {
+                            <input type="text" class="form-control border-0 border-bottom" @bind-value="todo.Title" />
+                        }
+                    </td>
+                    &nbsp;
+                    <td>
+                        @if (todo.IsCompleted)
+                        {
+                            <label class="form-label">
+                                Completed at @todo.CompletedDateTime
+                            </label>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+    
+
+@code {
+    private List<ToDoItem> toDos = ToDoRepository.GetToDos();
+
+    private void AddToDo()
+    {
+        ToDoRepository.AddToDo(new ToDoItem { Title = "New item", IsCompleted = false });
+        toDos = ToDoRepository.GetToDos();
+        NavigationManager.Refresh();
+    }
+    private void UpdateToDo(int id, ToDoItem toDo)
+    {
+        ToDoRepository.UpdateToDo(id, toDo);
+        NavigationManager.Refresh();
+    }
+}
